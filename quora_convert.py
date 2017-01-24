@@ -1,6 +1,8 @@
+from __future__ import unicode_literals
 import csv
 import json
-import nltk
+import spacy
+import io
 
 # Converter by Sam Bowman (bowman@nyu.edu)
 
@@ -10,7 +12,7 @@ import nltk
 
 # Instructions: Install nltk, move into the same directory as the source file, run.
 
-
+NLP = spacy.load('en')
 LABELS = ['entailment', 'neutral']
 
 dev_set = []
@@ -18,19 +20,19 @@ test_set = []
 training_set = []
 
 with open('quora_duplicate_questions.tsv', 'rbU') as csvfile:
-    reader = csv.reader(csvfile, delimiter="\t")
+    reader = csv.reader(csvfile, delimiter=b"\t")
     for i, row in enumerate(reader):
         if i < 1:
             continue
 
         example = {}
-        example['sentence1'] = row[3]
-        example['sentence2'] = row[4]
+        example['sentence1'] = row[3].decode('utf8')
+        example['sentence2'] = row[4].decode('utf8')
         example['gold_label'] = LABELS[int(row[5])]
         example['pairID'] = row[0]
 
-        example['sentence1_parse'] = example['sentence1_binary_parse'] = ' '.join(nltk.word_tokenize(example['sentence1']))
-        example['sentence2_parse'] = example['sentence2_binary_parse'] = ' '.join(nltk.word_tokenize(example['sentence2']))
+        example['sentence1_parse'] = example['sentence1_binary_parse'] = ' '.join(w.text for w in NLP(example['sentence1']))
+        example['sentence2_parse'] = example['sentence2_binary_parse'] = ' '.join(w.text for w in NLP(example['sentence2']))
 
         if i <= 10000:
             dev_set.append(example)
@@ -46,7 +48,7 @@ def write_json(data, filename):
             outfile.write('\n')
 
 def write_txt(data, filename):
-    with open(filename, 'w') as outfile:
+    with io.open(filename, 'w', encoding='utf8') as outfile:
         outfile.write(
             'gold_label\tsentence1_binary_parse\tsentence2_binary_parse\tsentence1_parse\tsentence2_parse\tsentence1\tsentence2\tcaptionID\tpairID\tlabel1\tlabel2\tlabel3\tlabel4\tlabel5\n')
         for item in data:
