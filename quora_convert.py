@@ -10,7 +10,7 @@ import io
 # Data can be found here: https://data.quora.com/First-Quora-Dataset-Release-Question-Pairs
 # Note: No parsing yet, just crude tokenization.
 
-# Instructions: Install nltk, move into the same directory as the source file, run.
+# Instructions: Install spaCy, move into the same directory as the source file, run.
 
 NLP = spacy.load('en')
 LABELS = ['entailment', 'neutral']
